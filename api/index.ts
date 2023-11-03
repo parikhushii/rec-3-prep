@@ -34,7 +34,7 @@ app.use(
 );
 
 app.use(express.static(path.join(__dirname, "../public")));
-app.use("/api", router);
+app.use("/api/", router);
 
 // For all unrecognized requests, return a not found message.
 app.all("*", (req, res) => {
