@@ -10,6 +10,13 @@ import Responses from "./responses";
 import { z } from "zod";
 
 class Routes {
+  // Using Zod we can actually coerce inputs to numbers too!
+  @Router.get("/math")
+  @Router.validate(z.object({ a: z.coerce.number(), b: z.coerce.number() }))
+  addTwoNumbers(a: number, b: number) {
+    return a + b;
+  }
+
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
     const user = WebSession.getUser(session);

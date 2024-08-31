@@ -111,20 +111,17 @@ export class Router {
         return ret;
       };
 
-      const args = Object.fromEntries(
+      let args = Object.fromEntries(
         argNames.map((arg) => {
           return [arg, reqMap(arg)];
         }),
       );
 
-      console.log(args);
-      console.log(Object.values(args));
-
       // make object from argNames and args
       if (validator) {
         console.log(`Validating with ${JSON.stringify(validator)}`);
         try {
-          validator.parse(req.body);
+          args = validator.parse(args);
         } catch (e: unknown) {
           res.status(400).json({ msg: "Bad Request: validation failed" });
           return;
@@ -173,8 +170,8 @@ export class Router {
 
   static validate(zodSchema: ZodSchema) {
     return function (originalMethod: Function, context: ClassMethodDecoratorContext<Object>) {
+      console.log("What", context.name, JSON.stringify(zodSchema));
       context.addInitializer(function () {
-        console.log(`Definining metadata ${JSON.stringify(zodSchema)}`);
         Reflect.defineMetadata("zodSchema", zodSchema, this, context.name);
       });
     };
