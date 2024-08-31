@@ -10,7 +10,7 @@ import assert from "assert";
 import type { WebSessionDoc } from "../server/concepts/websession";
 
 // Test mode must be set before importing the routes
-import { routes } from "../server/routes";
+import { routes as app } from "../server/routes";
 
 import db, { client } from "../server/db";
 if (db.databaseName !== "test-db") {
@@ -28,25 +28,25 @@ beforeEach(async () => {
   await db.dropDatabase();
 
   // Might want to add some default users for convenience
-  await routes.createUser(getEmptySession(), "alice", "alice123");
-  await routes.createUser(getEmptySession(), "bob", "bob123");
+  await app.createUser(getEmptySession(), "alice", "alice123");
+  await app.createUser(getEmptySession(), "bob", "bob123");
 });
 
 describe("Create a user and log in", () => {
   it("should create a user and log in", async () => {
     const session = getEmptySession();
 
-    await assert.doesNotReject(routes.createUser(session, "barish", "1234"));
-    await assert.rejects(routes.logIn(session, "barish", "123"));
-    await assert.doesNotReject(routes.logIn(session, "barish", "1234"));
-    await assert.rejects(routes.logIn(session, "barish", "1234"), "Should not be able to login while already logged-in");
+    await assert.doesNotReject(app.createUser(session, "barish", "1234"));
+    await assert.rejects(app.logIn(session, "barish", "123"));
+    await assert.doesNotReject(app.logIn(session, "barish", "1234"));
+    await assert.rejects(app.logIn(session, "barish", "1234"), "Should not be able to login while already logged-in");
   });
 
   it("duplicate username should fail", async () => {
     const session = getEmptySession();
 
-    await assert.doesNotReject(routes.createUser(session, "barish", "1234"));
-    await assert.rejects(routes.createUser(session, "barish", "1234"));
+    await assert.doesNotReject(app.createUser(session, "barish", "1234"));
+    await assert.rejects(app.createUser(session, "barish", "1234"));
   });
 });
 
