@@ -27,7 +27,7 @@ export default class PostConcept {
 
   async getPosts() {
     // Returns all posts! You might want to page for better client performance
-    return await this.posts.readMany({}, { sort: -1 });
+    return await this.posts.readMany({}, { sort: { _id: -1 } });
   }
 
   async getByAuthor(author: ObjectId) {
