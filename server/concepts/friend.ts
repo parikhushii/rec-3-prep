@@ -32,6 +32,7 @@ export default class FriendConcept {
   async acceptRequest(from: ObjectId, to: ObjectId) {
     await this.removePendingRequest(from, to);
     // Following two can be done in parallel, thus we use `void`
+    // In general, be very careful with parallelization!
     void this.requests.createOne({ from, to, status: "accepted" });
     void this.addFriend(from, to);
     return { msg: "Accepted request!" };
@@ -81,7 +82,7 @@ export default class FriendConcept {
     return request;
   }
 
-  private async isNotFriends(u1: ObjectId, u2: ObjectId) {
+  private async assertNotFriends(u1: ObjectId, u2: ObjectId) {
     const friendship = await this.friends.readOne({
       $or: [
         { user1: u1, user2: u2 },
@@ -94,7 +95,7 @@ export default class FriendConcept {
   }
 
   private async canSendRequest(u1: ObjectId, u2: ObjectId) {
-    await this.isNotFriends(u1, u2);
+    await this.assertNotFriends(u1, u2);
     // check if there is pending request between these users
     const request = await this.requests.readOne({
       from: { $in: [u1, u2] },

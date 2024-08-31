@@ -1,7 +1,6 @@
 import {
   BulkWriteOptions,
   Collection,
-  Condition,
   CountDocumentsOptions,
   DeleteOptions,
   DeleteResult,
@@ -13,7 +12,6 @@ import {
   OptionalUnlessRequiredId,
   ReplaceOptions,
   UpdateResult,
-  WithId,
   WithoutId,
 } from "mongodb";
 
@@ -49,16 +47,6 @@ export default class DocCollection<Schema extends BaseDoc> {
   }
 
   /**
-   * This method fixes the _id field of a filter.
-   * In case the _id is a string, it will be converted to an ObjectId.
-   */
-  private sanitizeFilter(filter: Filter<Schema>) {
-    if (filter._id && typeof filter._id === "string" && ObjectId.isValid(filter._id)) {
-      filter._id = new ObjectId(filter._id) as Condition<WithId<Schema>["_id"]>;
-    }
-  }
-
-  /**
    * Add `item` to the collection. Returns the _id of the inserted document.
    */
   async createOne(item: Partial<Schema>): Promise<ObjectId> {
@@ -84,7 +72,6 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Read the document that matches `filter`. Returns `null` if no document matches.
    */
   async readOne(filter: Filter<Schema>, options?: FindOptions): Promise<Schema | null> {
-    this.sanitizeFilter(filter);
     return await this.collection.findOne<Schema>(filter, options);
   }
 
@@ -92,7 +79,6 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Read all documents that match `filter`.
    */
   async readMany(filter: Filter<Schema>, options?: FindOptions): Promise<Schema[]> {
-    this.sanitizeFilter(filter);
     return await this.collection.find<Schema>(filter, options).toArray();
   }
 
@@ -100,17 +86,16 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Replace the document that matches `filter` with `item`.
    */
   async replaceOne(filter: Filter<Schema>, item: Partial<Schema>, options?: ReplaceOptions): Promise<UpdateResult<Schema> | Document> {
-    this.sanitizeFilter(filter);
     this.sanitizeItem(item);
     return await this.collection.replaceOne(filter, item as WithoutId<Schema>, options);
   }
 
   /**
    * Update the document that matches `filter` based on existing fields in `update`.
+   * Only the given fields in `update` get updated.
    */
-  async updateOne(filter: Filter<Schema>, update: Partial<Schema>, options?: FindOneAndUpdateOptions): Promise<UpdateResult<Schema>> {
+  async partialUpdateOne(filter: Filter<Schema>, update: Partial<Schema>, options?: FindOneAndUpdateOptions): Promise<UpdateResult<Schema>> {
     this.sanitizeItem(update);
-    this.sanitizeFilter(filter);
     update.dateUpdated = new Date();
     return await this.collection.updateOne(filter, { $set: update }, options);
   }
@@ -119,7 +104,6 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Delete the document that matches `filter`.
    */
   async deleteOne(filter: Filter<Schema>, options?: DeleteOptions): Promise<DeleteResult> {
-    this.sanitizeFilter(filter);
     return await this.collection.deleteOne(filter, options);
   }
 
@@ -127,7 +111,6 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Delete all documents that match `filter`.
    */
   async deleteMany(filter: Filter<Schema>, options?: DeleteOptions): Promise<DeleteResult> {
-    this.sanitizeFilter(filter);
     return await this.collection.deleteMany(filter, options);
   }
 
@@ -135,7 +118,6 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Count all documents that match `filter`.
    */
   async count(filter: Filter<Schema>, options?: CountDocumentsOptions): Promise<number> {
-    this.sanitizeFilter(filter);
     return await this.collection.countDocuments(filter, options);
   }
 
@@ -144,7 +126,6 @@ export default class DocCollection<Schema extends BaseDoc> {
    * This method is equivalent to calling `readOne` and `deleteOne`.
    */
   async popOne(filter: Filter<Schema>): Promise<Schema | null> {
-    this.sanitizeFilter(filter);
     const one = await this.readOne(filter);
     if (one === null) {
       return null;
@@ -152,4 +133,6 @@ export default class DocCollection<Schema extends BaseDoc> {
     await this.deleteOne({ _id: one._id } as Filter<Schema>);
     return one;
   }
+
+  // Feel free to add your own functions!
 }

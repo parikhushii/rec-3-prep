@@ -3,8 +3,7 @@ import { ObjectId } from "mongodb";
 import { Router, getExpressRouter } from "./framework/router";
 
 import { Friend, Post, User, WebSession } from "./app";
-import { PostDoc, PostOptions } from "./concepts/post";
-import { UserDoc } from "./concepts/user";
+import { PostOptions } from "./concepts/post";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
 
@@ -31,10 +30,16 @@ class Routes {
     return await User.create(username, password);
   }
 
-  @Router.patch("/users")
-  async updateUser(session: WebSessionDoc, update: Partial<UserDoc>) {
+  @Router.post("/users/username")
+  async updateUsername(session: WebSessionDoc, username: string) {
     const user = WebSession.getUser(session);
-    return await User.update(user, update);
+    return await User.updateUsername(user, username);
+  }
+
+  @Router.post("/users/password")
+  async updatePassword(session: WebSessionDoc, currentPassword: string, newPassword: string) {
+    const user = WebSession.getUser(session);
+    return User.updatePassword(user, currentPassword, newPassword);
   }
 
   @Router.delete("/users")
@@ -64,7 +69,7 @@ class Routes {
       const id = (await User.getUserByUsername(author))._id;
       posts = await Post.getByAuthor(id);
     } else {
-      posts = await Post.getPosts({});
+      posts = await Post.getPosts();
     }
     return Responses.posts(posts);
   }
@@ -77,17 +82,19 @@ class Routes {
   }
 
   @Router.patch("/posts/:_id")
-  async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<PostDoc>) {
+  async updatePost(session: WebSessionDoc, _id: string, content?: string, options?: PostOptions) {
     const user = WebSession.getUser(session);
-    await Post.isAuthor(user, _id);
-    return await Post.update(_id, update);
+    const id = new ObjectId(_id);
+    await Post.assertAuthorIsUser(id, user);
+    return await Post.update(id, content, options);
   }
 
   @Router.delete("/posts/:_id")
-  async deletePost(session: WebSessionDoc, _id: ObjectId) {
+  async deletePost(session: WebSessionDoc, _id: string) {
     const user = WebSession.getUser(session);
-    await Post.isAuthor(user, _id);
-    return Post.delete(_id);
+    const id = new ObjectId(_id);
+    await Post.assertAuthorIsUser(id, user);
+    return Post.delete(id);
   }
 
   @Router.get("/friends")
@@ -138,4 +145,6 @@ class Routes {
   }
 }
 
-export default getExpressRouter(new Routes());
+export const routes = new Routes();
+
+export default getExpressRouter(routes);

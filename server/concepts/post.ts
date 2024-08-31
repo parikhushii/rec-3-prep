@@ -1,4 +1,4 @@
-import { Filter, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
@@ -21,20 +21,19 @@ export default class PostConcept {
     return { msg: "Post successfully created!", post: await this.posts.readOne({ _id }) };
   }
 
-  async getPosts(query: Filter<PostDoc>) {
-    const posts = await this.posts.readMany(query, {
-      sort: { dateUpdated: -1 },
-    });
-    return posts;
+  async getPosts() {
+    // Returns all posts! You might want to page for better client performance
+    return await this.posts.readMany({}, { sort: -1 });
   }
 
   async getByAuthor(author: ObjectId) {
-    return await this.getPosts({ author });
+    return await this.posts.readMany({ author });
   }
 
-  async update(_id: ObjectId, update: Partial<PostDoc>) {
-    this.sanitizeUpdate(update);
-    await this.posts.updateOne({ _id }, update);
+  async update(_id: ObjectId, content?: string, options?: PostOptions) {
+    // Note that if content or options is undefined, it actually will not be updated
+    // since undefined values for partialUpdateOne are ignored.
+    await this.posts.partialUpdateOne({ _id }, { content, options });
     return { msg: "Post successfully updated!" };
   }
 
@@ -43,23 +42,13 @@ export default class PostConcept {
     return { msg: "Post deleted successfully!" };
   }
 
-  async isAuthor(user: ObjectId, _id: ObjectId) {
+  async assertAuthorIsUser(_id: ObjectId, user: ObjectId) {
     const post = await this.posts.readOne({ _id });
     if (!post) {
       throw new NotFoundError(`Post ${_id} does not exist!`);
     }
     if (post.author.toString() !== user.toString()) {
       throw new PostAuthorNotMatchError(user, _id);
-    }
-  }
-
-  private sanitizeUpdate(update: Partial<PostDoc>) {
-    // Make sure the update cannot change the author.
-    const allowedUpdates = ["content", "options"];
-    for (const key in update) {
-      if (!allowedUpdates.includes(key)) {
-        throw new NotAllowedError(`Cannot update '${key}' field!`);
-      }
     }
   }
 }

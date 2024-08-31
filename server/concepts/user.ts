@@ -11,7 +11,7 @@ export default class UserConcept {
   public readonly users = new DocCollection<UserDoc>("users");
 
   async create(username: string, password: string) {
-    await this.canCreate(username, password);
+    await this.assertGoodCredentials(username, password);
     const _id = await this.users.createOne({ username, password });
     return { msg: "User created successfully!", user: await this.users.readOne({ _id }) };
   }
@@ -61,12 +61,23 @@ export default class UserConcept {
     return { msg: "Successfully authenticated.", _id: user._id };
   }
 
-  async update(_id: ObjectId, update: Partial<UserDoc>) {
-    if (update.username !== undefined) {
-      await this.isUsernameUnique(update.username);
+  async updateUsername(_id: ObjectId, username: string) {
+    await this.assertUsernameUnique(username);
+    await this.users.partialUpdateOne({ _id }, { username });
+    return { msg: "Username updated successfully!" };
+  }
+
+  async updatePassword(_id: ObjectId, currentPassword: string, newPassword: string) {
+    const user = await this.users.readOne({ _id });
+    if (!user) {
+      throw new NotFoundError("User not found");
     }
-    await this.users.updateOne({ _id }, update);
-    return { msg: "User updated successfully!" };
+    if (user.password !== currentPassword) {
+      throw new NotAllowedError("The given current password is wrong!");
+    }
+
+    await this.users.partialUpdateOne({ _id }, { password: newPassword });
+    return { msg: "Password updated successfully!" };
   }
 
   async delete(_id: ObjectId) {
@@ -74,21 +85,21 @@ export default class UserConcept {
     return { msg: "User deleted!" };
   }
 
-  async userExists(_id: ObjectId) {
+  async assertUserExists(_id: ObjectId) {
     const maybeUser = await this.users.readOne({ _id });
     if (maybeUser === null) {
       throw new NotFoundError(`User not found!`);
     }
   }
 
-  private async canCreate(username: string, password: string) {
+  private async assertGoodCredentials(username: string, password: string) {
     if (!username || !password) {
       throw new BadValuesError("Username and password must be non-empty!");
     }
-    await this.isUsernameUnique(username);
+    await this.assertUsernameUnique(username);
   }
 
-  private async isUsernameUnique(username: string) {
+  private async assertUsernameUnique(username: string) {
     if (await this.users.readOne({ username })) {
       throw new NotAllowedError(`User with username ${username} already exists!`);
     }
