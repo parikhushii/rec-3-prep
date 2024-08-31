@@ -12,6 +12,9 @@ export default class UserConcept {
 
   constructor(name: string) {
     this.users = new DocCollection<UserDoc>(name);
+
+    // Create index on username to make search queries for it
+    void this.users.collection.createIndex({ username: 1 });
   }
 
   async create(username: string, password: string) {
