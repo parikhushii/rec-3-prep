@@ -95,6 +95,8 @@ export class Router {
   }
 
   private makeRoute(f: Function) {
+    const argNames = getParamNames(f);
+
     return async (req: Request, res: Response) => {
       const reqMap = (name: string) => {
         if (name === "session" || name == "param" || name == "query" || name == "body") {
@@ -108,7 +110,6 @@ export class Router {
         return ret;
       };
 
-      const argNames = getParamNames(f);
       const args = argNames.map(reqMap);
 
       let result;
