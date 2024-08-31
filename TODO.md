@@ -1,7 +1,7 @@
 - [ ] Update the dummy frontend after changes (easy)
   - If the unit tests are good, might want to get rid of it.
 
-- [ ] Unit test (easy but tricky?)
+- [X] Unit test (easy but tricky?)
   - Note that `routes` export from `routes.ts` is callable, so the idea
   is to in beginning of tests cleaning out whole DB and then making tests
   that are "user stories".

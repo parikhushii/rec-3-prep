@@ -13,7 +13,13 @@ export const client = new MongoClient(mongoUri, {
   },
 });
 
-export const DB_NAME = "conception-db"; // Feel free to change db name!
+export let DB_NAME: string;
+if (process.env.TEST) {
+  console.log("Using test database");
+  DB_NAME = "test-db"; // Used only for unit-tests
+} else {
+  DB_NAME = "61040-db"; // Feel free to change db name!
+}
 
 /**
  * Attempts to complete the connection to {@link client}.
