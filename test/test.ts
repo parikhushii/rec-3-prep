@@ -50,6 +50,13 @@ describe("Create a user and log in", () => {
   });
 });
 
+describe("Testing validator", () => {
+  it("should validate username", async () => {
+    await assert.rejects(app.getUser(""), "Username should be at least 1 character long");
+    await assert.doesNotReject(app.getUser("alice"));
+  });
+});
+
 // More testcases needed!
 
 // After all tests are done, we close the connection

@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import "reflect-metadata";
 
+import { ZodSchema } from "zod";
 import { getParamNames } from "./utils";
 
 export type HttpMethod = "all" | "get" | "post" | "put" | "delete" | "patch" | "options" | "head";
@@ -65,8 +66,8 @@ export class Router {
     }
   }
 
-  public registerRoute(method: HttpMethod, path: string, action: Function) {
-    this.expressRouter[method](path, this.makeRoute(action));
+  public registerRoute(method: HttpMethod, path: string, action: Function, validator?: ZodSchema) {
+    this.expressRouter[method](path, this.makeRoute(action, validator));
   }
 
   public all(path: string, action: Function) {
@@ -94,7 +95,7 @@ export class Router {
     this.registerRoute("head", path, action);
   }
 
-  private makeRoute(f: Function) {
+  private makeRoute(f: Function, validator?: ZodSchema) {
     const argNames = getParamNames(f);
 
     return async (req: Request, res: Response) => {
@@ -110,11 +111,29 @@ export class Router {
         return ret;
       };
 
-      const args = argNames.map(reqMap);
+      const args = Object.fromEntries(
+        argNames.map((arg) => {
+          return [arg, reqMap(arg)];
+        }),
+      );
+
+      console.log(args);
+      console.log(Object.values(args));
+
+      // make object from argNames and args
+      if (validator) {
+        console.log(`Validating with ${JSON.stringify(validator)}`);
+        try {
+          validator.parse(req.body);
+        } catch (e: unknown) {
+          res.status(400).json({ msg: "Bad Request: validation failed" });
+          return;
+        }
+      }
 
       let result;
       try {
-        result = f.call(null, ...args);
+        result = f.call(null, ...Object.values(args));
         if (result instanceof Promise) {
           result = await result;
         }
@@ -152,6 +171,15 @@ export class Router {
     return this.httpDecorator("head", route);
   }
 
+  static validate(zodSchema: ZodSchema) {
+    return function (originalMethod: Function, context: ClassMethodDecoratorContext<Object>) {
+      context.addInitializer(function () {
+        console.log(`Definining metadata ${JSON.stringify(zodSchema)}`);
+        Reflect.defineMetadata("zodSchema", zodSchema, this, context.name);
+      });
+    };
+  }
+
   private static httpDecorator(method: HttpMethod, route: string) {
     return function (originalMethod: Function, context: ClassMethodDecoratorContext<Object>) {
       context.addInitializer(function () {
@@ -176,6 +204,7 @@ export function getExpressRouter(routes: Object) {
     // These come from decorators in the Routes class.
     const method = Reflect.getMetadata("method", routes, endpoint) as HttpMethod;
     const path = Reflect.getMetadata("path", routes, endpoint) as string;
+    const zodSchema = Reflect.getMetadata("zodSchema", routes, endpoint) as ZodSchema | undefined;
 
     // Skip if the method or path is not defined (e.g., when endpoint is the constructor)
     if (!method || !path) {
@@ -185,7 +214,7 @@ export function getExpressRouter(routes: Object) {
     // The ugly cast is because TypeScript doesn't know that `routes[endpoint]` is a correct method.
     const action = (routes as Record<string, Function>)[endpoint];
 
-    router.registerRoute(method, path, action);
+    router.registerRoute(method, path, action, zodSchema);
   }
 
   return router.expressRouter;

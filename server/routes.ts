@@ -7,6 +7,8 @@ import { PostOptions } from "./concepts/post";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
 
+import { z } from "zod";
+
 class Routes {
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
@@ -20,6 +22,7 @@ class Routes {
   }
 
   @Router.get("/users/:username")
+  @Router.validate(z.object({ username: z.string().min(1) }))
   async getUser(username: string) {
     return await User.getUserByUsername(username);
   }
@@ -63,6 +66,7 @@ class Routes {
   }
 
   @Router.get("/posts")
+  @Router.validate(z.object({ author: z.string() }))
   async getPosts(author?: string) {
     let posts;
     if (author) {
