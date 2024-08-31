@@ -29,6 +29,7 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_SRV,
+      dbName: "mongo-sessions",
     }),
   }),
 );
