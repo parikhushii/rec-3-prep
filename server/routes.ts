@@ -12,7 +12,7 @@ import { z } from "zod";
 class Routes {
   // Using Zod we can actually coerce inputs to numbers too!
   @Router.get("/math")
-  @Router.validate(z.object({ a: z.coerce.number(), b: z.coerce.number() }))
+  @Router.validate(z.object({ a: z.coerce.number().min(0), b: z.coerce.number().max(100) }))
   addTwoNumbers(a: number, b: number) {
     return a + b;
   }
