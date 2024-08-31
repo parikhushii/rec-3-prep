@@ -14,8 +14,13 @@ export interface FriendRequestDoc extends BaseDoc {
 }
 
 export default class FriendConcept {
-  public readonly friends = new DocCollection<FriendshipDoc>("friends");
-  public readonly requests = new DocCollection<FriendRequestDoc>("friendRequests");
+  public readonly friends: DocCollection<FriendshipDoc>;
+  public readonly requests: DocCollection<FriendRequestDoc>;
+
+  constructor(name: string) {
+    this.friends = new DocCollection<FriendshipDoc>(name);
+    this.requests = new DocCollection<FriendRequestDoc>(name + "_requests");
+  }
 
   async getRequests(user: ObjectId) {
     return await this.requests.readMany({
