@@ -42,10 +42,7 @@ export default class FriendingConcept {
 
   async acceptRequest(from: ObjectId, to: ObjectId) {
     await this.removePendingRequest(from, to);
-    // Following two can be done in parallel, thus we use `void`
-    // In general, be very careful with parallelization!
-    void this.requests.createOne({ from, to, status: "accepted" });
-    void this.addFriend(from, to);
+    await Promise.all([this.requests.createOne({ from, to, status: "accepted" }), this.addFriend(from, to)]);
     return { msg: "Accepted request!" };
   }
 
