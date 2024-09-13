@@ -2,7 +2,7 @@ import { SessionData } from "express-session";
 import { ObjectId } from "mongodb";
 import { NotAllowedError, UnauthenticatedError } from "./errors";
 
-export type WebSessionDoc = SessionData;
+export type SessionDoc = SessionData;
 
 // This allows us to overload express session data type.
 // Express session does not support non-string values over requests.
@@ -13,29 +13,29 @@ declare module "express-session" {
   }
 }
 
-export default class WebSessionConcept {
-  start(session: WebSessionDoc, user: ObjectId) {
+export default class SessioningConcept {
+  start(session: SessionDoc, user: ObjectId) {
     this.isLoggedOut(session);
     session.user = user.toString();
   }
 
-  end(session: WebSessionDoc) {
+  end(session: SessionDoc) {
     this.isLoggedIn(session);
     session.user = undefined;
   }
 
-  getUser(session: WebSessionDoc) {
+  getUser(session: SessionDoc) {
     this.isLoggedIn(session);
     return new ObjectId(session.user);
   }
 
-  isLoggedIn(session: WebSessionDoc) {
+  isLoggedIn(session: SessionDoc) {
     if (session.user === undefined) {
       throw new UnauthenticatedError("Must be logged in!");
     }
   }
 
-  isLoggedOut(session: WebSessionDoc) {
+  isLoggedOut(session: SessionDoc) {
     if (session.user !== undefined) {
       throw new NotAllowedError("Must be logged out!");
     }

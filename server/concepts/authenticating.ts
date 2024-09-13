@@ -7,7 +7,7 @@ export interface UserDoc extends BaseDoc {
   password: string;
 }
 
-export default class UserConcept {
+export default class AuthenticatingConcept {
   public readonly users: DocCollection<UserDoc>;
 
   constructor(name: string) {

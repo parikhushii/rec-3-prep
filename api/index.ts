@@ -10,7 +10,7 @@ dotenv.config();
 
 import MongoStore from "connect-mongo";
 import { connectDb } from "../server/db";
-import router from "../server/routes";
+import { appRouter } from "../server/routes";
 
 export const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,7 +35,7 @@ app.use(
 );
 
 app.use(express.static(path.join(__dirname, "../public")));
-app.use("/api/", router);
+app.use("/api/", appRouter);
 
 // For all unrecognized requests, return a not found message.
 app.all("*", (req, res) => {

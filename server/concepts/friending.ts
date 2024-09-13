@@ -13,7 +13,7 @@ export interface FriendRequestDoc extends BaseDoc {
   status: "pending" | "rejected" | "accepted";
 }
 
-export default class FriendConcept {
+export default class FriendingConcept {
   public readonly friends: DocCollection<FriendshipDoc>;
   public readonly requests: DocCollection<FriendRequestDoc>;
 

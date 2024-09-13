@@ -1,6 +1,6 @@
-import { User } from "./app";
-import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friend";
-import { PostAuthorNotMatchError, PostDoc } from "./concepts/post";
+import { Authing } from "./app";
+import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friending";
+import { PostAuthorNotMatchError, PostDoc } from "./concepts/posting";
 import { Router } from "./framework/router";
 
 /**
@@ -15,7 +15,7 @@ export default class Responses {
     if (!post) {
       return post;
     }
-    const author = await User.getUserById(post.author);
+    const author = await Authing.getUserById(post.author);
     return { ...post, author: author.username };
   }
 
@@ -23,7 +23,7 @@ export default class Responses {
    * Same as {@link post} but for an array of PostDoc for improved performance.
    */
   static async posts(posts: PostDoc[]) {
-    const authors = await User.idsToUsernames(posts.map((post) => post.author));
+    const authors = await Authing.idsToUsernames(posts.map((post) => post.author));
     return posts.map((post, i) => ({ ...post, author: authors[i] }));
   }
 
@@ -34,32 +34,32 @@ export default class Responses {
   static async friendRequests(requests: FriendRequestDoc[]) {
     const from = requests.map((request) => request.from);
     const to = requests.map((request) => request.to);
-    const usernames = await User.idsToUsernames(from.concat(to));
+    const usernames = await Authing.idsToUsernames(from.concat(to));
     return requests.map((request, i) => ({ ...request, from: usernames[i], to: usernames[i + requests.length] }));
   }
 }
 
 Router.registerError(PostAuthorNotMatchError, async (e) => {
-  const username = (await User.getUserById(e.author)).username;
+  const username = (await Authing.getUserById(e.author)).username;
   return e.formatWith(username, e._id);
 });
 
 Router.registerError(FriendRequestAlreadyExistsError, async (e) => {
-  const [user1, user2] = await Promise.all([User.getUserById(e.from), User.getUserById(e.to)]);
+  const [user1, user2] = await Promise.all([Authing.getUserById(e.from), Authing.getUserById(e.to)]);
   return e.formatWith(user1.username, user2.username);
 });
 
 Router.registerError(FriendNotFoundError, async (e) => {
-  const [user1, user2] = await Promise.all([User.getUserById(e.user1), User.getUserById(e.user2)]);
+  const [user1, user2] = await Promise.all([Authing.getUserById(e.user1), Authing.getUserById(e.user2)]);
   return e.formatWith(user1.username, user2.username);
 });
 
 Router.registerError(FriendRequestNotFoundError, async (e) => {
-  const [user1, user2] = await Promise.all([User.getUserById(e.from), User.getUserById(e.to)]);
+  const [user1, user2] = await Promise.all([Authing.getUserById(e.from), Authing.getUserById(e.to)]);
   return e.formatWith(user1.username, user2.username);
 });
 
 Router.registerError(AlreadyFriendsError, async (e) => {
-  const [user1, user2] = await Promise.all([User.getUserById(e.user1), User.getUserById(e.user2)]);
+  const [user1, user2] = await Promise.all([Authing.getUserById(e.user1), Authing.getUserById(e.user2)]);
   return e.formatWith(user1.username, user2.username);
 });

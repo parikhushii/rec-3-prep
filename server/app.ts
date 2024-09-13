@@ -1,10 +1,11 @@
-import FriendConcept from "./concepts/friend";
-import PostConcept from "./concepts/post";
-import UserConcept from "./concepts/user";
-import WebSessionConcept from "./concepts/websession";
+import AuthenticatingConcept from "./concepts/authenticating";
+import FriendingConcept from "./concepts/friending";
+import PostingConcept from "./concepts/posting";
+import SessioningConcept from "./concepts/sessioning";
 
-// App Definition using concepts
-export const WebSession = new WebSessionConcept();
-export const User = new UserConcept("users");
-export const Post = new PostConcept("posts");
-export const Friend = new FriendConcept("friends");
+// The app is a composition of concepts instantiated here
+// and synchronized together in `routes.ts`.
+export const Sessioning = new SessioningConcept();
+export const Authing = new AuthenticatingConcept("users");
+export const Posting = new PostingConcept("posts");
+export const Friending = new FriendingConcept("friends");

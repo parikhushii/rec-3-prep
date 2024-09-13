@@ -13,7 +13,7 @@ export interface PostDoc extends BaseDoc {
   options?: PostOptions;
 }
 
-export default class PostConcept {
+export default class PostingConcept {
   public readonly posts: DocCollection<PostDoc>;
 
   constructor(name: string) {

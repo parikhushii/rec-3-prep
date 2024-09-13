@@ -7,10 +7,10 @@ process.env.TEST = "true";
 dotenv.config();
 
 import assert from "assert";
-import type { WebSessionDoc } from "../server/concepts/websession";
+import type { SessionDoc } from "../server/concepts/sessioning";
 
 // Test mode must be set before importing the routes
-import { routes as app } from "../server/routes";
+import { app } from "../server/routes";
 
 import db, { client } from "../server/db";
 if (db.databaseName !== "test-db") {
