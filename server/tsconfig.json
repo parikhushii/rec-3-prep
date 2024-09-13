@@ -11,10 +11,9 @@
     "strict": true,
     "skipLibCheck": true,
 
-    "rootDir": "./",
-    "baseUrl": "server/",
-    "outDir": "dist/",
+    "rootDir": "../",
+    "baseUrl": "./",
+    "outDir": "../dist-server/",
   },
-  "include": ["server/**/*.ts", "public/*.ts", "test/*.ts", "api/index.ts"],
-  "exclude": ["node_modules", ".vscode"]
+  "include": ["./**/*.ts", "../public/*.ts", "../test/*.ts", "../api/index.ts"],
 }
