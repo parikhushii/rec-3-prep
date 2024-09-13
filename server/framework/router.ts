@@ -141,31 +141,43 @@ export class Router {
     };
   }
 
+  /** (called as a decorator) Add a handler for all requests. */
   static all(route: string) {
     return this.httpDecorator("get", route);
   }
+  /** (called as a decorator) Add a handler for `GET` requests. */
   static get(route: string) {
     return this.httpDecorator("get", route);
   }
+  /** (called as a decorator) Add a handler for `POST` requests. */
   static post(route: string) {
     return this.httpDecorator("post", route);
   }
+  /** (called as a decorator) Add a handler for `PUT` requests. */
   static put(route: string) {
     return this.httpDecorator("put", route);
   }
+  /** (called as a decorator) Add a handler for `DELETE` requests. */
   static delete(route: string) {
     return this.httpDecorator("delete", route);
   }
+  /** (called as a decorator) Add a handler for `PATCH` requests. */
   static patch(route: string) {
     return this.httpDecorator("patch", route);
   }
+  /** (called as a decorator) Add a handler for `OPTIONS` requests. */
   static options(route: string) {
     return this.httpDecorator("options", route);
   }
+  /** (called as a decorator) Add a handler for `HEAD` requests. */
   static head(route: string) {
     return this.httpDecorator("head", route);
   }
 
+  /**
+   * (called as a decorator) Add a validator for client inputs.
+   * @param zodSchema Zod "schema" describing types, constraints, and/or coercions
+   */
   static validate(zodSchema: ZodSchema) {
     return function (originalMethod: Function, context: ClassMethodDecoratorContext<Object>) {
       context.addInitializer(function () {
@@ -194,6 +206,11 @@ function getParamNames(f: Function) {
     .map((param: string) => param.split("=")[0].trim()); // remove whitespaces
 }
 
+/**
+ * Build an Express router.
+ * @param routes object where functions have been decorated with e.g. `@Router.get`, etc.
+ * @returns router to be mounted in an Express app
+ */
 export function getExpressRouter(routes: Object) {
   const router = new Router();
 

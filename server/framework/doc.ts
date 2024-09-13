@@ -48,7 +48,8 @@ export default class DocCollection<Schema extends BaseDoc> {
   }
 
   /**
-   * Add `item` to the collection. Returns the _id of the inserted document.
+   * Add `item` to the collection.
+   * @returns the object ID of the inserted document
    */
   async createOne(item: Partial<Schema>): Promise<ObjectId> {
     const safe = this.withoutInternal(item);
@@ -58,7 +59,8 @@ export default class DocCollection<Schema extends BaseDoc> {
   }
 
   /**
-   * Add `items` to the collection. Returns a record object of the form `{ <index>: <_id> }` for inserted documents.
+   * Add `items` to the collection.
+   * @returns a record object of the form `{ <index>: <object ID> }` for inserted documents
    */
   async createMany(items: Partial<Schema>[], options?: BulkWriteOptions): Promise<Record<number, ObjectId>> {
     const safe = items.map((item) => {
@@ -71,14 +73,16 @@ export default class DocCollection<Schema extends BaseDoc> {
   }
 
   /**
-   * Read the document that matches `filter`. Returns `null` if no document matches.
+   * Read the document that matches `filter`
+   * @returns the document, or `null` if no document matches
    */
   async readOne(filter: Filter<Schema>, options?: FindOptions): Promise<Schema | null> {
     return await this.collection.findOne<Schema>(filter, options);
   }
 
   /**
-   * Read all documents that match `filter`.
+   * Read all documents that match `filter`
+   * @returns all matching documents
    */
   async readMany(filter: Filter<Schema>, options?: FindOptions): Promise<Schema[]> {
     return await this.collection.find<Schema>(filter, options).toArray();
@@ -86,6 +90,7 @@ export default class DocCollection<Schema extends BaseDoc> {
 
   /**
    * Replace the document that matches `filter` with `item`.
+   * @returns an object describing what was updated
    */
   async replaceOne(filter: Filter<Schema>, item: Partial<Schema>, options?: ReplaceOptions): Promise<UpdateResult<Schema> | Document> {
     const safe = this.withoutInternal(item);
@@ -93,8 +98,8 @@ export default class DocCollection<Schema extends BaseDoc> {
   }
 
   /**
-   * Update the document that matches `filter` based on existing fields in `update`.
-   * Only the given fields in `update` get updated.
+   * Update the document that matches `filter` with fields in `update`; only fields in `update` are updated.
+   * @returns an object describing what was updated
    */
   async partialUpdateOne(filter: Filter<Schema>, update: Partial<Schema>, options?: FindOneAndUpdateOptions): Promise<UpdateResult<Schema>> {
     const safe = this.withoutInternal(update);
@@ -104,6 +109,7 @@ export default class DocCollection<Schema extends BaseDoc> {
 
   /**
    * Delete the document that matches `filter`.
+   * @returns an object describing what was deleted
    */
   async deleteOne(filter: Filter<Schema>, options?: DeleteOptions): Promise<DeleteResult> {
     return await this.collection.deleteOne(filter, options);
@@ -111,6 +117,7 @@ export default class DocCollection<Schema extends BaseDoc> {
 
   /**
    * Delete all documents that match `filter`.
+   * @returns an object describing what was deleted
    */
   async deleteMany(filter: Filter<Schema>, options?: DeleteOptions): Promise<DeleteResult> {
     return await this.collection.deleteMany(filter, options);
@@ -118,14 +125,15 @@ export default class DocCollection<Schema extends BaseDoc> {
 
   /**
    * Count all documents that match `filter`.
+   * @returns the count
    */
   async count(filter: Filter<Schema>, options?: CountDocumentsOptions): Promise<number> {
     return await this.collection.countDocuments(filter, options);
   }
 
   /**
-   * Pop one document that matches `filter`.
-   * This method is equivalent to calling `readOne` and `deleteOne`.
+   * Pop one document that matches `filter`, equivalent to calling `readOne` and `deleteOne`.
+   * @returns the document, or `null` if no document matches
    */
   async popOne(filter: Filter<Schema>): Promise<Schema | null> {
     const one = await this.readOne(filter);
@@ -136,5 +144,7 @@ export default class DocCollection<Schema extends BaseDoc> {
     return one;
   }
 
-  // Feel free to add your own functions!
+  /*
+   * You may wish to add your own functions, e.g. using other MongoDB operations!
+   */
 }

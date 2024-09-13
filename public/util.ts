@@ -3,14 +3,17 @@ type InputTag = "input" | "textarea" | "json";
 type Field = InputTag | { [key: string]: Field };
 type Fields = Record<string, Field>;
 
-type operation = {
+type Operation = {
   name: string;
   endpoint: string;
   method: HttpMethod;
   fields: Fields;
 };
 
-const operations: operation[] = [
+/**
+ * This list of operations is used to generate the manual testing UI.
+ */
+const operations: Operation[] = [
   {
     name: "Get Session User (logged in user)",
     endpoint: "/api/session",
@@ -77,10 +80,15 @@ const operations: operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
+  //
+  // ...
+  //
 ];
 
-// Do not edit below here.
-// If you are interested in how this works, feel free to ask on forum!
+/*
+ * You should not need to edit below.
+ * Please ask if you have questions about what this test code is doing!
+ */
 
 function updateResponse(code: string, response: string) {
   document.querySelector("#status-code")!.innerHTML = code;

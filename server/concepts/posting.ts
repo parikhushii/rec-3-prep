@@ -13,11 +13,17 @@ export interface PostDoc extends BaseDoc {
   options?: PostOptions;
 }
 
+/**
+ * concept: Posting [Author]
+ */
 export default class PostingConcept {
   public readonly posts: DocCollection<PostDoc>;
 
-  constructor(name: string) {
-    this.posts = new DocCollection<PostDoc>(name);
+  /**
+   * Make an instance of Posting.
+   */
+  constructor(collectionName: string) {
+    this.posts = new DocCollection<PostDoc>(collectionName);
   }
 
   async create(author: ObjectId, content: string, options?: PostOptions) {
@@ -35,7 +41,7 @@ export default class PostingConcept {
   }
 
   async update(_id: ObjectId, content?: string, options?: PostOptions) {
-    // Note that if content or options is undefined, it actually will not be updated
+    // Note that if content or options is undefined, those fields will *not* be updated
     // since undefined values for partialUpdateOne are ignored.
     await this.posts.partialUpdateOne({ _id }, { content, options });
     return { msg: "Post successfully updated!" };

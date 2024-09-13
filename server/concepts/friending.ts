@@ -13,13 +13,19 @@ export interface FriendRequestDoc extends BaseDoc {
   status: "pending" | "rejected" | "accepted";
 }
 
+/**
+ * concept: Friending [User]
+ */
 export default class FriendingConcept {
   public readonly friends: DocCollection<FriendshipDoc>;
   public readonly requests: DocCollection<FriendRequestDoc>;
 
-  constructor(name: string) {
-    this.friends = new DocCollection<FriendshipDoc>(name);
-    this.requests = new DocCollection<FriendRequestDoc>(name + "_requests");
+  /**
+   * Make an instance of Friending.
+   */
+  constructor(collectionName: string) {
+    this.friends = new DocCollection<FriendshipDoc>(collectionName);
+    this.requests = new DocCollection<FriendRequestDoc>(collectionName + "_requests");
   }
 
   async getRequests(user: ObjectId) {

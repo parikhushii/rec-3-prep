@@ -7,13 +7,19 @@ export interface UserDoc extends BaseDoc {
   password: string;
 }
 
+/**
+ * concept: Authenticating
+ */
 export default class AuthenticatingConcept {
   public readonly users: DocCollection<UserDoc>;
 
-  constructor(name: string) {
-    this.users = new DocCollection<UserDoc>(name);
+  /**
+   * Make an instance of Authenticating.
+   */
+  constructor(collectionName: string) {
+    this.users = new DocCollection<UserDoc>(collectionName);
 
-    // Create index on username to make search queries for it
+    // Create index on username to make search queries for it performant
     void this.users.collection.createIndex({ username: 1 });
   }
 
@@ -23,9 +29,9 @@ export default class AuthenticatingConcept {
     return { msg: "User created successfully!", user: await this.users.readOne({ _id }) };
   }
 
-  private sanitizeUser(user: UserDoc) {
+  private redactPassword(user: UserDoc) {
     // eslint-disable-next-line
-    const { password, ...rest } = user; // remove password
+    const { password, ...rest } = user;
     return rest;
   }
 
@@ -34,7 +40,7 @@ export default class AuthenticatingConcept {
     if (user === null) {
       throw new NotFoundError(`User not found!`);
     }
-    return this.sanitizeUser(user);
+    return this.redactPassword(user);
   }
 
   async getUserByUsername(username: string) {
@@ -42,7 +48,7 @@ export default class AuthenticatingConcept {
     if (user === null) {
       throw new NotFoundError(`User not found!`);
     }
-    return this.sanitizeUser(user);
+    return this.redactPassword(user);
   }
 
   async idsToUsernames(ids: ObjectId[]) {
@@ -56,7 +62,7 @@ export default class AuthenticatingConcept {
   async getUsers(username?: string) {
     // If username is undefined, return all users by applying empty filter
     const filter = username ? { username } : {};
-    const users = (await this.users.readMany(filter)).map(this.sanitizeUser);
+    const users = (await this.users.readMany(filter)).map(this.redactPassword);
     return users;
   }
 

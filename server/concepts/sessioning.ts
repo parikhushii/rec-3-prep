@@ -13,6 +13,9 @@ declare module "express-session" {
   }
 }
 
+/**
+ * concept: Sessioning [User]
+ */
 export default class SessioningConcept {
   start(session: SessionDoc, user: ObjectId) {
     this.isLoggedOut(session);

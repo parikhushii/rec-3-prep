@@ -1,6 +1,7 @@
-// Make sure we are in test mode!
 import dotenv from "dotenv";
 import process from "process";
+
+// Make sure we are in test mode!
 process.env.TEST = "true";
 
 // Also need to load the .env file
@@ -17,19 +18,25 @@ if (db.databaseName !== "test-db") {
   throw new Error("Not connected to test database");
 }
 
-// Actual WebSession comes form Express.js, but here
-// we just need a mock object
-const getEmptySession = () => {
-  return { cookie: {} } as WebSessionDoc;
-};
+// Actual sessions are created by Express, here we use a mock session
+function getEmptySession() {
+  return { cookie: {} } as SessionDoc;
+}
 
+// Before each test...
 beforeEach(async () => {
-  // We just drop the test database before each test
+  // Drop the test database
   await db.dropDatabase();
 
-  // Might want to add some default users for convenience
+  // Add some default users we can use
   await app.createUser(getEmptySession(), "alice", "alice123");
   await app.createUser(getEmptySession(), "bob", "bob123");
+});
+
+// After all tests are done...
+after(async () => {
+  // Close the database connection so that Node exits
+  await client.close();
 });
 
 describe("Create a user and log in", () => {
@@ -57,10 +64,6 @@ describe("Testing validator", () => {
   });
 });
 
-// More testcases needed!
-
-// After all tests are done, we close the connection
-// so that the program can exit
-after(async () => {
-  await client.close();
-});
+/*
+ * As you add more tests, remember to put them inside `describe` blocks.
+ */
