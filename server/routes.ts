@@ -13,13 +13,6 @@ import { z } from "zod";
  * Web server routes for the app. Implements synchronizations between concepts.
  */
 class Routes {
-  // Using Zod we can actually coerce inputs to numbers too!
-  @Router.get("/math")
-  @Router.validate(z.object({ a: z.coerce.number().min(0), b: z.coerce.number().max(100) }))
-  addTwoNumbers(a: number, b: number) {
-    return a + b;
-  }
-
   @Router.get("/session")
   async getSessionUser(session: SessionDoc) {
     const user = Sessioning.getUser(session);

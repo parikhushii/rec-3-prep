@@ -15,7 +15,6 @@ export const client = new MongoClient(mongoUri, {
 
 export let DB_NAME: string;
 if (process.env.TEST) {
-  console.log("Using test database");
   DB_NAME = "test-db"; // Used only for unit-tests
 } else {
   DB_NAME = "61040-db"; // Feel free to change db name!
@@ -23,7 +22,6 @@ if (process.env.TEST) {
 
 /**
  * Attempts to complete the connection to {@link client}.
- * Called in `main.ts`.
  */
 export async function connectDb() {
   try {

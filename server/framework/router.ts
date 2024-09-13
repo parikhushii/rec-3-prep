@@ -2,7 +2,6 @@ import express, { Request, Response } from "express";
 import "reflect-metadata";
 
 import { ZodSchema } from "zod";
-import { getParamNames } from "./utils";
 
 export type HttpMethod = "all" | "get" | "post" | "put" | "delete" | "patch" | "options" | "head";
 
@@ -119,7 +118,6 @@ export class Router {
 
       // make object from argNames and args
       if (validator) {
-        console.log(`Validating with ${JSON.stringify(validator)}`);
         try {
           args = validator.parse(args);
         } catch (e: unknown) {
@@ -170,7 +168,6 @@ export class Router {
 
   static validate(zodSchema: ZodSchema) {
     return function (originalMethod: Function, context: ClassMethodDecoratorContext<Object>) {
-      console.log("What", context.name, JSON.stringify(zodSchema));
       context.addInitializer(function () {
         Reflect.defineMetadata("zodSchema", zodSchema, this, context.name);
       });
@@ -187,6 +184,14 @@ export class Router {
       });
     };
   }
+}
+
+function getParamNames(f: Function) {
+  return f
+    .toString()
+    .match(/\((.*?)\)/)![1]
+    .split(",") // Simple regex to get "name: type" items in signature
+    .map((param: string) => param.split("=")[0].trim()); // remove whitespaces
 }
 
 export function getExpressRouter(routes: Object) {
