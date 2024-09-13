@@ -1,3 +1,4 @@
+import { strict as assert } from "assert";
 import dotenv from "dotenv";
 import process from "process";
 
@@ -7,7 +8,6 @@ process.env.TEST = "true";
 // Also need to load the .env file
 dotenv.config();
 
-import assert from "assert";
 import type { SessionDoc } from "../server/concepts/sessioning";
 
 // Test mode must be set before importing the routes
@@ -43,24 +43,24 @@ describe("Create a user and log in", () => {
   it("should create a user and log in", async () => {
     const session = getEmptySession();
 
-    await assert.doesNotReject(app.createUser(session, "barish", "1234"));
+    const created = await app.createUser(session, "barish", "1234");
+    assert(created.user);
     await assert.rejects(app.logIn(session, "barish", "123"));
-    await assert.doesNotReject(app.logIn(session, "barish", "1234"));
+    await app.logIn(session, "barish", "1234");
     await assert.rejects(app.logIn(session, "barish", "1234"), "Should not be able to login while already logged-in");
   });
 
   it("duplicate username should fail", async () => {
     const session = getEmptySession();
 
-    await assert.doesNotReject(app.createUser(session, "barish", "1234"));
+    const created = await app.createUser(session, "barish", "1234");
+    assert(created.user);
     await assert.rejects(app.createUser(session, "barish", "1234"));
   });
-});
 
-describe("Testing validator", () => {
-  it("should validate username", async () => {
+  it("get invalid username should fail", async () => {
     await assert.rejects(app.getUser(""), "Username should be at least 1 character long");
-    await assert.doesNotReject(app.getUser("alice"));
+    await app.getUser("alice");
   });
 });
 
