@@ -37,35 +37,37 @@ export default class DocCollection<Schema extends BaseDoc> {
   }
 
   /**
-   * This method removes "illegal" fields from an item
-   * so the client cannot fake them.
+   * Remove internal fields from an item so that the client does not alter them.
    */
-  private sanitizeItem(item: Partial<Schema>) {
-    delete item._id;
-    delete item.dateCreated;
-    delete item.dateUpdated;
+  private withoutInternal<P extends Partial<Schema>>(item: P): WithoutId<P> {
+    const safe = Object.assign({}, item);
+    delete safe._id;
+    delete safe.dateCreated;
+    delete safe.dateUpdated;
+    return safe;
   }
 
   /**
    * Add `item` to the collection. Returns the _id of the inserted document.
    */
   async createOne(item: Partial<Schema>): Promise<ObjectId> {
-    this.sanitizeItem(item);
-    item.dateCreated = new Date();
-    item.dateUpdated = new Date();
-    return (await this.collection.insertOne(item as OptionalUnlessRequiredId<Schema>)).insertedId;
+    const safe = this.withoutInternal(item);
+    safe.dateCreated = new Date();
+    safe.dateUpdated = new Date();
+    return (await this.collection.insertOne(safe as OptionalUnlessRequiredId<Schema>)).insertedId;
   }
 
   /**
    * Add `items` to the collection. Returns a record object of the form `{ <index>: <_id> }` for inserted documents.
    */
   async createMany(items: Partial<Schema>[], options?: BulkWriteOptions): Promise<Record<number, ObjectId>> {
-    items.forEach((item) => {
-      this.sanitizeItem(item);
-      item.dateCreated = new Date();
-      item.dateUpdated = new Date();
+    const safe = items.map((item) => {
+      const safe = this.withoutInternal(item);
+      safe.dateCreated = new Date();
+      safe.dateUpdated = new Date();
+      return safe;
     });
-    return (await this.collection.insertMany(items as OptionalUnlessRequiredId<Schema>[], options)).insertedIds;
+    return (await this.collection.insertMany(safe as OptionalUnlessRequiredId<Schema>[], options)).insertedIds;
   }
 
   /**
@@ -86,8 +88,8 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Replace the document that matches `filter` with `item`.
    */
   async replaceOne(filter: Filter<Schema>, item: Partial<Schema>, options?: ReplaceOptions): Promise<UpdateResult<Schema> | Document> {
-    this.sanitizeItem(item);
-    return await this.collection.replaceOne(filter, item as WithoutId<Schema>, options);
+    const safe = this.withoutInternal(item);
+    return await this.collection.replaceOne(filter, safe as WithoutId<Schema>, options);
   }
 
   /**
@@ -95,9 +97,9 @@ export default class DocCollection<Schema extends BaseDoc> {
    * Only the given fields in `update` get updated.
    */
   async partialUpdateOne(filter: Filter<Schema>, update: Partial<Schema>, options?: FindOneAndUpdateOptions): Promise<UpdateResult<Schema>> {
-    this.sanitizeItem(update);
-    update.dateUpdated = new Date();
-    return await this.collection.updateOne(filter, { $set: update }, options);
+    const safe = this.withoutInternal(update);
+    safe.dateUpdated = new Date();
+    return await this.collection.updateOne(filter, { $set: safe as Partial<Schema> }, options);
   }
 
   /**
