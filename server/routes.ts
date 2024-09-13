@@ -42,7 +42,7 @@ class Routes {
     return await Authing.updateUsername(user, username);
   }
 
-  @Router.post("/users/password")
+  @Router.patch("/users/password")
   async updatePassword(session: SessionDoc, currentPassword: string, newPassword: string) {
     const user = Sessioning.getUser(session);
     return Authing.updatePassword(user, currentPassword, newPassword);
@@ -69,7 +69,7 @@ class Routes {
   }
 
   @Router.get("/posts")
-  @Router.validate(z.object({ author: z.string() }))
+  @Router.validate(z.object({ author: z.string().optional() }))
   async getPosts(author?: string) {
     let posts;
     if (author) {

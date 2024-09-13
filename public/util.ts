@@ -39,10 +39,10 @@ const operations: Operation[] = [
     fields: {},
   },
   {
-    name: "Update User",
-    endpoint: "/api/users",
+    name: "Update Password",
+    endpoint: "/api/users/password",
     method: "PATCH",
-    fields: { update: { username: "input", password: "input" } },
+    fields: { currentPassword: "input", newPassword: "input" },
   },
   {
     name: "Delete User",
@@ -72,7 +72,7 @@ const operations: Operation[] = [
     name: "Update Post",
     endpoint: "/api/posts/:id",
     method: "PATCH",
-    fields: { id: "input", update: { content: "input", options: { backgroundColor: "input" } } },
+    fields: { id: "input", content: "input", options: { backgroundColor: "input" } },
   },
   {
     name: "Delete Post",
