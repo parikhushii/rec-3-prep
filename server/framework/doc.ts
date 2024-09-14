@@ -94,6 +94,7 @@ export default class DocCollection<Schema extends BaseDoc> {
    */
   async replaceOne(filter: Filter<Schema>, item: Partial<Schema>, options?: ReplaceOptions): Promise<UpdateResult<Schema> | Document> {
     const safe = this.withoutInternal(item);
+    safe.dateUpdated = new Date();
     return await this.collection.replaceOne(filter, safe as WithoutId<Schema>, options);
   }
 
