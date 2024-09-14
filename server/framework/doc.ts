@@ -25,6 +25,11 @@ export interface BaseDoc {
 
 export type WithoutBase<T extends BaseDoc> = Omit<T, keyof BaseDoc>;
 
+/**
+ * MongoDB collection with operations that maintain created and updated timestamps.
+ *
+ * Note that you may wish to add more methods, e.g. using other MongoDB operations!
+ */
 export default class DocCollection<Schema extends BaseDoc> {
   public readonly collection: Collection<Schema>;
   private static collectionNames: Set<string> = new Set();
@@ -146,6 +151,6 @@ export default class DocCollection<Schema extends BaseDoc> {
   }
 
   /*
-   * You may wish to add your own functions, e.g. using other MongoDB operations!
+   * You may wish to add more methods, e.g. using other MongoDB operations!
    */
 }

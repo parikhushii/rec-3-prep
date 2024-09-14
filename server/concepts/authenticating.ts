@@ -29,7 +29,7 @@ export default class AuthenticatingConcept {
     return { msg: "User created successfully!", user: await this.users.readOne({ _id }) };
   }
 
-  private redactPassword(user: UserDoc) {
+  private redactPassword(user: UserDoc): Omit<UserDoc, "password"> {
     // eslint-disable-next-line
     const { password, ...rest } = user;
     return rest;
