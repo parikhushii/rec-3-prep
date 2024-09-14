@@ -201,9 +201,9 @@ export class Router {
 function getParamNames(f: Function) {
   return f
     .toString()
-    .match(/\((.*?)\)/)![1]
-    .split(",") // Simple regex to get "name: type" items in signature
-    .map((param: string) => param.split("=")[0].trim()); // remove whitespaces
+    .match(/\((.*?)\)/)![1] // Get list of parameters between the brackets
+    .split(",")
+    .map((param: string) => param.split("=")[0].trim()); // Delete default values and remove whitespaces
 }
 
 /**
