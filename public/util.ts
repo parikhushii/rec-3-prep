@@ -15,70 +15,16 @@ type Operation = {
  */
 const operations: Operation[] = [
   {
-    name: "Get Session User (logged in user)",
-    endpoint: "/api/session",
-    method: "GET",
-    fields: {},
-  },
-  {
-    name: "Create User",
-    endpoint: "/api/users",
-    method: "POST",
-    fields: { username: "input", password: "input" },
-  },
-  {
     name: "Login",
     endpoint: "/api/login",
     method: "POST",
-    fields: { username: "input", password: "input" },
+    fields: { username: "input" }, // No password, we don't have any authentication yet
   },
   {
     name: "Logout",
     endpoint: "/api/logout",
     method: "POST",
     fields: {},
-  },
-  {
-    name: "Update Password",
-    endpoint: "/api/users/password",
-    method: "PATCH",
-    fields: { currentPassword: "input", newPassword: "input" },
-  },
-  {
-    name: "Delete User",
-    endpoint: "/api/users",
-    method: "DELETE",
-    fields: {},
-  },
-  {
-    name: "Get Users (empty for all)",
-    endpoint: "/api/users/:username",
-    method: "GET",
-    fields: { username: "input" },
-  },
-  {
-    name: "Get Posts (empty for all)",
-    endpoint: "/api/posts",
-    method: "GET",
-    fields: { author: "input" },
-  },
-  {
-    name: "Create Post",
-    endpoint: "/api/posts",
-    method: "POST",
-    fields: { content: "input" },
-  },
-  {
-    name: "Update Post",
-    endpoint: "/api/posts/:id",
-    method: "PATCH",
-    fields: { id: "input", content: "input", options: { backgroundColor: "input" } },
-  },
-  {
-    name: "Delete Post",
-    endpoint: "/api/posts/:id",
-    method: "DELETE",
-    fields: { id: "input" },
   },
   //
   // ...

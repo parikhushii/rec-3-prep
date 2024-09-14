@@ -8,8 +8,6 @@ import * as path from "path";
 // The following line sets up the environment variables before everything else.
 dotenv.config();
 
-import MongoStore from "connect-mongo";
-import { connectDb } from "../server/db";
 import { appRouter } from "../server/routes";
 
 export const app = express();
@@ -27,10 +25,6 @@ app.use(
     secret: process.env.SECRET || "Hello 6.1040",
     resave: true,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_SRV,
-      dbName: "mongo-sessions",
-    }),
   }),
 );
 
@@ -44,8 +38,6 @@ app.all("*", (req, res) => {
   });
 });
 
-void connectDb().then(() => {
-  app.listen(PORT, () => {
-    console.log("Started listening on port", PORT);
-  });
+app.listen(PORT, () => {
+  console.log("Started listening on port", PORT);
 });
