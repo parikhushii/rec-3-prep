@@ -24,12 +24,13 @@ export default class SessioningConcept {
     // Hint: Take a look at how the "end" function makes sure the user is logged in. Keep in mind that a
     // synchronization like starting a session should just consist of a series of actions that may throw
     // exceptions and should not have its own control flow.
+    this.priorLogin(session)
     session.user = username;
   }
 
   end(session: SessionDoc) {
     this.isLoggedIn(session);
-    session.user = undefined;
+    session.user = undefined; //indicates that the user has logged out
   }
 
   getUser(session: SessionDoc) {
@@ -40,6 +41,12 @@ export default class SessioningConcept {
   isLoggedIn(session: SessionDoc) {
     if (session.user === undefined) {
       throw new UnauthenticatedError("Must be logged in!");
+    }
+  }
+
+  priorLogin(session: SessionDoc) {
+    if (session.user !== undefined) {
+      throw new UnauthenticatedError("Must log out before logging in a new user!");
     }
   }
 }
